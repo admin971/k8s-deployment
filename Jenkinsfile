@@ -2,14 +2,17 @@ pipeline {
   agent any
 
   environment {
-    IMAGE_NAME = "karthickdevops/nodejs-k8s-app:latest"
+    DOCKER_HUB_USER = "karthickdevops"
+    IMAGE_NAME = "nodejs-k8s-app"
+    IMAGE_TAG = "v${BUILD_NUMBER}" // 👈 Create version like v1, v2, v3
+    FULL_IMAGE_NAME = "${DOCKER_HUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}"
   }
 
   stages {
     stage('Build Docker Image') {
       steps {
         script {
-          dockerImage = docker.build("${IMAGE_NAME}", "--no-cache .")
+          dockerImage = docker.build("${FULL_IMAGE_NAME}", "--no-cache .")
         }
       }
     }
@@ -26,10 +29,13 @@ pipeline {
 
     stage('Deploy to Kubernetes') {
       steps {
-        sh '''
-          kubectl apply -f k8s-deployment.yaml --validate=false
-          kubectl rollout status deployment/nodejs-app
-        '''
+        script {
+          sh '''
+            sed -i 's|image: .*|image: '"$FULL_IMAGE_NAME"'|' k8s-deployment.yaml
+            kubectl apply -f k8s-deployment.yaml --validate=false
+            kubectl rollout status deployment/nodejs-app
+          '''
+        }
       }
     }
   }

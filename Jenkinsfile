@@ -9,7 +9,7 @@ pipeline {
     stage('Build Docker Image') {
       steps {
         script {
-          dockerImage = docker.build("${IMAGE_NAME}")
+          dockerImage = docker.build("${IMAGE_NAME}", "--no-cache")
         }
       }
     }
@@ -26,7 +26,10 @@ pipeline {
 
     stage('Deploy to Kubernetes') {
       steps {
-        sh 'kubectl apply -f k8s-deployment.yaml'
+        sh '''
+          kubectl apply -f k8s-deployment.yaml --validate=false
+          kubectl rollout status deployment/nodejs-app
+        '''
       }
     }
   }

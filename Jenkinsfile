@@ -6,12 +6,6 @@ pipeline {
   }
 
   stages {
-    stage('Clone Repo') {
-      steps {
-        git credentialsId: 'github-credentials', url: 'https://github.com/admin971/k8s-deployment.git'
-      }
-    }
-
     stage('Build Docker Image') {
       steps {
         script {

@@ -1,12 +1,9 @@
-// app.js
 const http = require('http');
-
 const server = http.createServer((req, res) => {
   res.end('Hello from Node.js on Kubernetes!');
 });
-
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });
 
